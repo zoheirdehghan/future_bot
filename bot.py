@@ -17,7 +17,7 @@ TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN")
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 
 if not TELEGRAM_TOKEN or not OPENAI_API_KEY:
-    raise ValueError("❌ Error: Missing TELEGRAM_TOKEN or OPENAI_API_KEY in environment variables.")
+    raise ValueError("Error: Missing TELEGRAM_TOKEN or OPENAI_API_KEY in environment variables.")
 
 bot = telebot.TeleBot(TELEGRAM_TOKEN)
 openai.api_key = OPENAI_API_KEY
@@ -40,7 +40,7 @@ def handle_all(msg):
         fortune = resp.choices[0].message.content.strip()
         bot.reply_to(msg, fortune)
     except Exception as e:
-        print("❌ Error:", e)
+        print("Error:", e)
         bot.reply_to(msg, "خطایی رخ داد، دوباره تلاش کن.")
 
 # اجرای بات در یک Thread
