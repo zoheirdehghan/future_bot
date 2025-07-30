@@ -1,3 +1,7 @@
+import logging
+logging.basicConfig(level=logging.DEBUG)
+
+print("🚀 Bot is starting...")
 from dotenv import load_dotenv
 load_dotenv()
 
@@ -7,10 +11,19 @@ import telebot
 
 # خواندن کلیدها
 TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN")
+import os
+TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN")
+print("🔑 TELEGRAM_TOKEN =", TELEGRAM_TOKEN)
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 openai.api_key = OPENAI_API_KEY
-print("🔑 TELEGRAM_TOKEN =", TELEGRAM_TOKEN[:8] + "…")
-print("🔑 OPENAI_API_KEY  =", OPENAI_API_KEY[:8] + "…")
+if TELEGRAM_TOKEN:
+    print("🔑 TELEGRAM_TOKEN =", TELEGRAM_TOKEN[:8] + "…")
+else:
+    print("❌ TELEGRAM_TOKEN is None!")
+if OPENAI_API_KEY:
+    print("🔑 OPENAI_API_KEY =", OPENAI_API_KEY[:8] + "…")
+else:
+    print("❌ OPENAI_API_KEY is None!")
 bot = telebot.TeleBot(TELEGRAM_TOKEN)
 
 @bot.message_handler(commands=["start"])
@@ -37,7 +50,8 @@ def handle_all(msg):
 
 if __name__ == "__main__":
     print("🚀 Bot is starting…")    # ← این خط را اضافه کن
-    while True:
+    print("✅ Starting the bot now...")
+while True:
         try:
             bot.polling(none_stop=True, interval=0, timeout=100, long_polling_timeout=100)
         except Exception as e:
