@@ -59,6 +59,9 @@ def home():
     return "✅ Bot is running successfully on Render!"
 
 if __name__ == "__main__":
-    Thread(target=start_bot).start()
-    port = int(os.environ.get("PORT", 5000))
-    app.run(host="0.0.0.0", port=port)
+    # اجرای بات در یک Thread
+    Thread(target=start_bot).start()
+
+    # اجرای Flask
+    port = int(os.environ.get("PORT", 10000))
+    app.run(host='0.0.0.0', port=port)
