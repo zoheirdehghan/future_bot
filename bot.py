@@ -1,59 +1,64 @@
+import os
+import time
 import logging
+import telebot
+import openai
+from flask import Flask
+from threading import Thread
+from dotenv import load_dotenv
+
+# فعال کردن لاگ‌ها برای دیباگ
 logging.basicConfig(level=logging.DEBUG)
 
-print("🚀 Bot is starting...")
-from dotenv import load_dotenv
+# بارگذاری متغیرهای محیطی
 load_dotenv()
 
-import os
-import openai
-import telebot
-
-# خواندن کلیدها
 TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN")
-import os
-TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN")
-print("🔑 TELEGRAM_TOKEN =", TELEGRAM_TOKEN)
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
-openai.api_key = OPENAI_API_KEY
-if TELEGRAM_TOKEN:
-    print("🔑 TELEGRAM_TOKEN =", TELEGRAM_TOKEN[:8] + "…")
-else:
-    print("❌ TELEGRAM_TOKEN is None!")
-if OPENAI_API_KEY:
-    print("🔑 OPENAI_API_KEY =", OPENAI_API_KEY[:8] + "…")
-else:
-    print("❌ OPENAI_API_KEY is None!")
+
+if not TELEGRAM_TOKEN or not OPENAI_API_KEY:
+    raise ValueError("❌ Error: Missing TELEGRAM_TOKEN or OPENAI_API_KEY in environment variables.")
+
 bot = telebot.TeleBot(TELEGRAM_TOKEN)
+openai.api_key = OPENAI_API_KEY
 
-@bot.message_handler(commands=["start"])
+# فرمان /start
+@bot.message_handler(commands=['start'])
 def send_welcome(msg):
-    bot.reply_to(msg, "سلام! هر چیزی بپرس تا آینده‌ت رو پیش‌بینی کنم.")
+    bot.reply_to(msg, "سلام 👋 من ربات پیش‌بینی آینده هستم. هرچی دوست داری بپرس تا آینده‌تو پیش‌بینی کنم! 🔮")
 
+# پاسخ به پیام‌ها
 @bot.message_handler(func=lambda m: True)
 def handle_all(msg):
-    prompt = (
-        "You are a mystical fortune teller. "
-        f"The user says: \"{msg.text}\". "
-        "Predict their future in a fun, creative style."
-    )
     try:
+        prompt = f"You are a mystical fortune teller. Predict the user's future in a fun, creative style.\nUser: {msg.text}\nPrediction:"
         resp = openai.ChatCompletion.create(
             model="gpt-3.5-turbo",
-            messages=[{"role":"user","content":prompt}],
+            messages=[{"role": "user", "content": prompt}],
             max_tokens=150
         )
         fortune = resp.choices[0].message.content.strip()
-    except Exception:
-        fortune = "متأسفم، الان پیش‌گویی در دسترس نیست."
-    bot.reply_to(msg, fortune)
+        bot.reply_to(msg, fortune)
+    except Exception as e:
+        bot.reply_to(msg, "⚠️ خطایی رخ داد، دوباره تلاش کن.")
+
+# اجرای ربات در یک Thread جدا
+def start_bot():
+    while True:
+        try:
+            bot.polling(none_stop=True, interval=0, timeout=20)
+        except Exception as e:
+            print("Polling error:", e)
+            time.sleep(5)
+
+# ساخت وب‌سرور برای Render
+app = Flask(__name__)
+
+@app.route('/')
+def home():
+    return "✅ Bot is running successfully on Render!"
 
 if __name__ == "__main__":
-    print("🚀 Bot is starting…")    # ← این خط را اضافه کن
-    print("✅ Starting the bot now...")
-while True:
-        try:
-            bot.polling(none_stop=True, interval=0, timeout=100, long_polling_timeout=100)
-        except Exception as e:
-            print("⚠️ Polling error:", e)
-            time.sleep(15)
+    Thread(target=start_bot).start()
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host="0.0.0.0", port=port)
