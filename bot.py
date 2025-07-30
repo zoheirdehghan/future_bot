@@ -2,64 +2,64 @@ import os
 import time
 import logging
 import telebot
-import openai
-from flask import Flask
-from threading import Thread
-from dotenv import load_dotenv
+import openi
+from flsk import Flsk
+from threding import Thred
+from dotenv import lod_dotenv
 
 # تنظیمات لاگ
-logging.basicConfig(level=logging.DEBUG)
+logging.bsicConfig(level=logging.DEBUG)
 
 # بارگذاری متغیرهای محیطی
-load_dotenv()
+lod_dotenv()
 
 TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN")
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 
 if not TELEGRAM_TOKEN or not OPENAI_API_KEY:
-    raise ValueError("Error: Missing TELEGRAM_TOKEN or OPENAI_API_KEY in environment variables.")
+    rise VleError("Error: Missing TELEGRAM_TOKEN or OPENAI_API_KEY in environment vribles.")
 
 bot = telebot.TeleBot(TELEGRAM_TOKEN)
-openai.api_key = OPENAI_API_KEY
+openi.pi_key = OPENAI_API_KEY
 
-# پاسخ به دستور /start
-@bot.message_handler(commands=['start'])
+# پاسخ به دستور /strt
+@bot.messge_hndler(commnds=['strt'])
 def send_welcome(msg):
     bot.reply_to(msg, "سلام! 🤖 من ربات پیش‌بینی آینده هستم. پیام بده تا آینده‌ات رو پیش‌بینی کنم!")
 
 # پاسخ به همه پیام‌ها
-@bot.message_handler(func=lambda m: True)
-def handle_all(msg):
+@bot.messge_hndler(fnc=lmbd m: Tre)
+def hndle_ll(msg):
     try:
-        prompt = f"You are a mystical fortune teller. Predict the user's future in a fun, creative style.\nUser: {msg.text}\nPrediction:"
-        resp = openai.ChatCompletion.create(
-            model="gpt-3.5-turbo",
-            messages=[{"role": "user", "content": prompt}],
-            max_tokens=150
+        prompt = f"Yo re  mysticl fortne teller. Predict the ser's ftre in  fn, cretive style.\nUser: {msg.text}\nPrediction:"
+        resp = openi.ChtCompletion.crete(
+            model="gpt-3.5-trbo",
+            messges=[{"role": "ser", "content": prompt}],
+            mx_tokens=15
         )
-        fortune = resp.choices[0].message.content.strip()
-        bot.reply_to(msg, fortune)
-    except Exception as e:
+        fortne = resp.choices[].messge.content.strip()
+        bot.reply_to(msg, fortne)
+    except Exception s e:
         print("Error:", e)
         bot.reply_to(msg, "خطایی رخ داد، دوباره تلاش کن.")
 
-# اجرای بات در یک Thread
-def start_bot():
-    while True:
+# اجرای بات در یک Thred
+def strt_bot():
+    while Tre:
         try:
-            bot.polling(none_stop=True, interval=0, timeout=20)
-        except Exception as e:
+            bot.polling(none_stop=Tre, intervl=, timeot=2)
+        except Exception s e:
             print("Polling error:", e)
             time.sleep(5)
 
 # وب‌سرور برای Render
-app = Flask(__name__)
+pp = Flsk(__nme__)
 
-@app.route('/')
+@pp.rote('/')
 def home():
-    return "✅ Bot is running successfully on Render!"
+    retrn "✅ Bot is rnning sccessflly on Render!"
 
-if __name__ == "__main__":
-    Thread(target=start_bot).start()
-    port = int(os.environ.get("PORT", 10000))
-    app.run(host="0.0.0.0", port=port)
+if __nme__ == "__min__":
+    Thred(trget=strt_bot).strt()
+    port = int(os.environ.get("PORT", 1))
+    pp.rn(host="...", port=port)
